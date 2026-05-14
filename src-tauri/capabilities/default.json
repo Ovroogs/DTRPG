@@ -1,0 +1,34 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [{ "path": "$DOCUMENT/DTRPG/**/*" }]
+    },
+    {
+      "identifier": "fs:allow-read-text-file",
+      "allow": [{ "path": "$DOCUMENT/DTRPG/**/*" }]
+    },
+    {
+      "identifier": "fs:allow-write-text-file",
+      "allow": [{ "path": "$DOCUMENT/DTRPG/**/*" }]
+    },
+    {
+      "identifier": "fs:allow-mkdir",
+      "allow": [{ "path": "$DOCUMENT/DTRPG/**/*" }]
+    },
+    {
+      "identifier": "fs:allow-document-read",
+      "allow": [{ "path": "$DOCUMENT/DTRPG/**/*" }]
+    },
+    {
+      "identifier": "fs:allow-document-write",
+      "allow": [{ "path": "$DOCUMENT/DTRPG/**/*" }]
+    }
+  ]
+}
+

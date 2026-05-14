@@ -1,0 +1,23 @@
+body {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+#root{
+  height: 100vh;
+  width: 100vw;
+  padding: 0;
+  margin: 0;
+}
+
+.tooltip{
+  text-align: center;
+  color: white;
+  background-color: rgba(61, 60, 60, 0.7);
+  width: 20vw;
+}
+
+.tooltip div {
+  /* align-items: center; */
+}
