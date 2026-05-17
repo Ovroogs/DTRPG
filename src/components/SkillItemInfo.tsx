@@ -1,86 +1,171 @@
-import React from 'react';
-import { Flex, Text, Select } from '@gravity-ui/uikit'; // Проверьте ваш путь
-import { emptySkill, Specialization } from '@/types/Skill';
-import { useSkillTreeStore } from '@/stores/UseSkillTreeStore';
-import { useShallow } from 'zustand/shallow';
+import React, { useEffect, useState } from "react";
+import { useShallow } from "zustand/shallow";
+import { useSkillTreeStore } from "@/stores/UseSkillTreeStore";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { skillsService } from "@/xml/SkillXml"; // Сервис из вашей страницы SkillPage
+import { Skill, emptySkill, Specialization } from "@/types/Skill";
 
-export const SkillItemInfo = () => {
-  // Достаем свойства строго по отдельности — это лечит ошибку бесконечного цикла
+export function SkillItemInfo() {
   const selectedNode = useSkillTreeStore((state) => state.selectedNode);
-  const specializations = useSkillTreeStore(
-    useShallow((state) => state.currentTree?.specialization ?? [])
+  const updateSelectedNodeSpecialization = useSkillTreeStore(
+    (state) => state.updateSelectedNodeSpecialization,
   );
-  const updateSelectedNodeSpecialization = useSkillTreeStore((state) => state.updateSelectedNodeSpecialization);
+  const updateSelectedNodeSkill = useSkillTreeStore(
+    (state) => state.updateSelectedNodeSkill,
+  );
 
-  // Если ни одна нода не выбрана на холсте React Flow
+  const specializations = useSkillTreeStore(
+    useShallow((state) => state.currentTree?.specializations ?? []),
+  );
+
+  // Локальный стейт для хранения списка ВСЕХ глобальных навыков из skills.xml
+  const [globalSkills, setGlobalSkills] = useState<Skill[]>([]);
+
+  // Загружаем навыки из skills.xml при открытии панели
+  useEffect(() => {
+    skillsService.load().then(setGlobalSkills);
+  }, [selectedNode]); // Перезагружаем/синхронизируем при смене ноды
+
   if (!selectedNode) {
     return (
-      <Flex direction="column" alignItems="center" justifyContent="center" height="100%">
-        <Text color="secondary" variant="body-2">Выберите навык на холсте графа</Text>
-      </Flex>
+      <div className="flex h-full items-center justify-center p-6 text-center text-slate-500 italic">
+        Выберите навык на древе для редактирования
+      </div>
     );
   }
 
-  const skill = selectedNode.data.info.skill ?? emptySkill;
-  const currentSpec = selectedNode.data.info.specialization;
-
-  // Трансформируем специализации дерева в опции для селекта Gravity UI
-  const selectOptions = specializations.map((spec: Specialization) => ({
-    value: spec.id,
-    content: spec.name,
-  }));
+  const { skill, specialization: currentSpec } = selectedNode.data.info;
+  const skillData = skill ?? emptySkill;
 
   const rowStyle: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: '120px 1fr',
-    gap: '8px',
-    marginBottom: '12px',
-    alignItems: 'center',
+    display: "grid",
+    gridTemplateColumns: "120px 1fr",
+    gap: "8px",
+    marginBottom: "12px",
+    alignItems: "center",
   };
 
   return (
-    <div style={{ width: '100%' }}>
-      <Text variant="subheader-2" style={{ marginBottom: '16px', display: 'block' }}>
-        Свойства навыка №{selectedNode.data.number}
-      </Text>
+    <div className="flex flex-col gap-3 p-1 animate-in fade-in duration-300">
+      <header className="space-y-1">
+        <div className="flex items-center justify-between">
+          <Badge
+            variant="outline"
+            className="border-amber-500/50 text-amber-500 font-mono"
+          >
+            Node ID: {selectedNode.id.replace("node_", "")}
+          </Badge>
+          <span className="text-xs text-slate-500 font-bold uppercase tracking-tighter">
+            Порядковый #{selectedNode.data.number}
+          </span>
+        </div>
+      </header>
 
-      <div style={rowStyle}>
-        <Text color="secondary" variant="body-1">Name:</Text>
-        <Text variant="body-1" style={{ wordBreak: 'break-word', fontWeight: 'bold' }}>
-          {skill.name}
-        </Text>
-      </div>
+      <Separator className="bg-slate-800" />
 
-      <div style={rowStyle}>
-        <Text color="secondary" variant="body-1">Description:</Text>
-        <Text variant="body-1" style={{ opacity: 0.8 }}>
-          {skill.description}
-        </Text>
-      </div>
+      <div className="grid gap-1">
+        {/* СЕЛЕКТ ВЫБОРА НАЗВАНИЯ НАВЫКА ИЗ SKILLS.XML */}
+        <div style={rowStyle}>
+          <Label className="text-slate-500 text-[10px] uppercase font-black">
+            Выбрать Навык
+          </Label>
+          <Select
+            value={skillData.id || undefined}
+            onValueChange={(id) => {
+              const foundSkill = globalSkills.find((s) => s.id === id);
+              if (foundSkill) {
+                updateSelectedNodeSkill(foundSkill); // Записываем данные в ноду
+              }
+            }}
+          >
+            <SelectTrigger className="h-8 bg-slate-900 border-slate-700 text-xs text-slate-200 focus:ring-amber-500/50">
+              <SelectValue placeholder="Выберите навык..." />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
+              {globalSkills.map((s) => (
+                <SelectItem key={s.id} value={s.id || ""}>
+                  {s.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-      <div style={rowStyle}>
-        <Text color="secondary" variant="body-1">Specialization:</Text>
-        <Select
-          placeholder="Не задана"
-          size="m"
-          width="max"
-          options={selectOptions}
-          value={currentSpec?.id ? [currentSpec.id] : []}
-          onUpdate={(vals) => {
-            const selectedId = vals?.[0];
-            const foundSpec = specializations.find((s) => s.id === selectedId);
-            // Передаем объект специализации (или undefined для сброса) в Zustand стор
-            updateSelectedNodeSpecialization(foundSpec);
-          }}
-        />
-      </div>
+        {/* АВТОПОДСТАНОВКА ОПИСАНИЯ */}
+        <div className="grid grid-cols-[120px_1fr] items-baseline gap-1">
+          <Label className="text-slate-500 text-[10px] uppercase font-black">
+            Описание
+          </Label>
+          <p className="text-sm text-slate-300 leading-relaxed italic bg-slate-950/40 p-2 rounded border border-slate-900 min-h-12">
+            {skillData.description || "Описание отсутствует (выберите навык)"}
+          </p>
+        </div>
 
-      <div style={rowStyle}>
-        <Text color="secondary" variant="body-1">Tags:</Text>
-        <Text variant="body-1">
-          {Array.isArray(skill.tags) ? skill.tags.join(', ') : skill.tags}
-        </Text>
+        {/* СЕЛЕКТ СПЕЦИАЛИЗАЦИИ */}
+        <div style={rowStyle}>
+          <Label className="text-slate-500 text-[10px] uppercase font-black">
+            Спец-ция
+          </Label>
+          <Select
+            value={currentSpec?.id || "none"}
+            onValueChange={(id) => {
+              const found = specializations.find((s) => s.id === id);
+              updateSelectedNodeSpecialization(found);
+            }}
+          >
+            <SelectTrigger className="h-8 bg-slate-900 border-slate-700 text-xs text-slate-200 focus:ring-amber-500/50">
+              <SelectValue placeholder="Выбрать..." />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
+              <SelectItem value="none">Без специализации</SelectItem>
+              {specializations.map((spec) => (
+                <SelectItem key={spec.id} value={spec.id}>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="h-2 w-2 rounded-full"
+                      style={{ backgroundColor: spec.color }}
+                    />
+                    {spec.name}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* АВТОПОДСТАНОВКА ТЕГОВ */}
+        <div className="grid grid-cols-[120px_1fr] items-baseline gap-2">
+          <Label className="text-slate-500 text-[10px] uppercase font-black">
+            Теги
+          </Label>
+          <div className="flex flex-wrap gap-1">
+            {skillData.tags ? (
+              String(skillData.tags)
+                .split(",")
+                .map((tag, i) => (
+                  <Badge
+                    key={i}
+                    variant="secondary"
+                    className="text-[10px] bg-slate-800 text-slate-300 border-none"
+                  >
+                    {tag.trim()}
+                  </Badge>
+                ))
+            ) : (
+              <span className="text-xs text-slate-600">—</span>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
-};
+}

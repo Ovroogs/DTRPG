@@ -1,21 +1,18 @@
-import {
-  Card,
-  Button,
-  Flex,
-  Text,
-  TextArea,
-  TextInput,
-} from "@gravity-ui/uikit";
 import { useEffect, useState } from "react";
 import { emptySkill, Skill, Skills } from "../types/Skill";
 import { skillsService } from "@/xml/SkillXml";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 export const SkillPage = () => {
   return (
-    <Flex gap={1}>
+    <div className="flex gap-4 h-screen bg-slate-950 p-4 overflow-hidden">
       <SkillsEditor />
-      {/* <SpecializationEditor /> */}
-    </Flex>
+    </div>
   );
 };
 
@@ -56,123 +53,156 @@ const SkillsEditor = () => {
     await skillsService.save(updated);
   };
 
-  const updateForm = (field: keyof Skill, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
   return (
-    <Flex
-      direction="column"
-      gap="2"
-      height={"100vh"}
-      minWidth={"300px"}
-      style={{ padding: "10px", boxSizing: "border-box" }}
-    >
-      <Card view="filled" style={{ padding: "10px", flexShrink: 0 }}>
-        <Flex direction="column" gap="2">
-          <Text variant="body-3" style={{ textAlign: "center" }}>
-            {isEdit ? "РЕДАКТИРОВАНИЕ" : "НОВЫЙ СКИЛЛ"}
-          </Text>
-          <TextInput
-            value={formData.name}
-            onUpdate={(v) => updateForm("name", v)}
-            placeholder="Название..."
-          />
-          <TextArea
-            value={formData.description}
-            onUpdate={(v) => updateForm("description", v)}
-            placeholder="Описание..."
-            rows={4}
-          />
-          <TextInput
-            value={formData.tags as string}
-            onUpdate={(v) => updateForm("tags", v)}
-            placeholder="Теги..."
-          />
+    <div className="flex flex-col gap-4 w-80 h-full">
+      {/* ФОРМА СОЗДАНИЯ/РЕДАКТИРОВАНИЯ */}
+      <Card className="p-4 bg-slate-900 border-slate-800 shadow-xl shrink-0">
+        <div className="space-y-4">
+          <header className="text-center">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+              {isEdit ? "Редактирование" : "Новый навык"}
+            </span>
+          </header>
 
-          <Flex gap={2}>
+          <div className="space-y-3">
+            <Input
+              className="bg-slate-950 border-slate-800"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              placeholder="Название..."
+            />
+            <Textarea
+              className="bg-slate-950 border-slate-800 resize-none"
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              placeholder="Описание..."
+              rows={4}
+            />
+            <Input
+              className="bg-slate-950 border-slate-800"
+              value={formData.tags as string}
+              onChange={(e) =>
+                setFormData({ ...formData, tags: e.target.value })
+              }
+              placeholder="Теги (через запятую)..."
+            />
+          </div>
+
+          <div className="flex gap-2">
             <Button
-              view="action"
-              size="l"
+              className="flex-1 bg-amber-600 hover:bg-amber-500 font-bold"
               onClick={handleSave}
-              style={{ flexGrow: 1 }}
             >
-              {isEdit ? "Сохранить" : "Добавить"}
+              {isEdit ? "СОХРАНИТЬ" : "ДОБАВИТЬ"}
             </Button>
             {isEdit && (
               <Button
-                size="l"
+                variant="outline"
                 onClick={() => {
                   setIsEdit(false);
                   setFormData(emptySkill);
                 }}
               >
-                Отмена
+                ОТМЕНА
               </Button>
             )}
-          </Flex>
-        </Flex>
+          </div>
+        </div>
       </Card>
 
-      <SkillList skills={skills} onEdit={startEdit} onDelete={deleteSkill} />
-    </Flex>
+      <Separator className="bg-slate-800" />
+
+      {/* СПИСОК С ПОИСКОМ */}
+      <div className="flex-1 flex flex-col min-h-0">
+        <SkillList skills={skills} onEdit={startEdit} onDelete={deleteSkill} />
+      </div>
+    </div>
   );
 };
 
-type SkillListProps = {
+interface SkillListProps {
   skills: Skills;
   onEdit: (skill: Skill) => void;
   onDelete: (id: string) => void;
-};
+}
 
 const SkillList = ({ skills, onEdit, onDelete }: SkillListProps) => {
-  if (!skills || skills.length === 0) {
-    return <Text color="secondary">Список пуст</Text>;
-  }
-
   const [search, setSearch] = useState<string>("");
 
-  const filteredSkills = skills.filter((item) =>
+  const filtered = skills.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
-    <Flex
-      gap={2}
-      direction="column"
-      style={{ flexGrow: 1, overflow: "hidden" }}
-    >
-      <TextInput onUpdate={setSearch} />
-      <Flex
-        direction="column"
-        gap="2"
-        style={{ overflowY: "auto", flexGrow: 1, paddingRight: "8px" }}
-      >
-        {filteredSkills.map((element) => (
-          <Card key={element.id} style={{ padding: "12px", flexShrink: 0 }}>
-            <Flex direction="column" gap={2}>
-              <Text variant="subheader-1">{element.name}</Text>
-              <Text variant="body-1" color="secondary">
-                {element.description}
-              </Text>
-              <Text variant="body-1" color="secondary">
-                {element.tags}
-              </Text>
-              <Flex gap={2}>
-                <Button view="flat-action" onClick={() => onEdit(element)}>
-                  Изменить
-                </Button>
-                <Button
-                  view="flat-danger"
-                  onClick={() => onDelete(element.id ?? "")}
-                >
-                  Удалить
-                </Button>
-              </Flex>
-            </Flex>
-          </Card>
-        ))}
-      </Flex>
-    </Flex>
+    <div className="flex flex-col gap-3 flex-1 min-h-0">
+      <Input
+        placeholder="Поиск навыка..."
+        className="bg-slate-900 border-slate-800 h-9"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+        {filtered.length === 0 ? (
+          <div className="text-center py-10 text-slate-600 text-xs italic">
+            Список пуст
+          </div>
+        ) : (
+          filtered.map((skill) => (
+            <Card
+              key={skill.id}
+              className="p-3 bg-slate-900/40 border-slate-800 hover:border-slate-700 transition-colors"
+            >
+              <div className="space-y-2">
+                <div className="flex justify-between items-start gap-2">
+                  <span className="font-bold text-slate-100 text-sm">
+                    {skill.name}
+                  </span>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-[10px] text-amber-500"
+                      onClick={() => onEdit(skill)}
+                    >
+                      ИЗМ.
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-[10px] text-red-500"
+                      onClick={() => onDelete(skill.id || "")}
+                    >
+                      УДЛ.
+                    </Button>
+                  </div>
+                </div>
+
+                {skill.description && (
+                  <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                    {skill.description}
+                  </p>
+                )}
+
+                {skill.tags && (
+                  <div className="flex flex-wrap gap-1">
+                    <Badge
+                      variant="secondary"
+                      className="text-[9px] py-0 bg-slate-800 text-slate-400 border-none"
+                    >
+                      {skill.tags}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
   );
 };

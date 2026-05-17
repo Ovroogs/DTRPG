@@ -1,27 +1,22 @@
 import { ReactFlow, Background } from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { SkillNode } from "./SkillNode";
-import FloatingEdge from "./FloatingEdge";
-import { Button, Flex } from "@gravity-ui/uikit";
-import { useSkillTreeStore } from "@/stores/UseSkillTreeStore";
-import { SkillItemInfo } from "./SkillItemInfo";
 import { TreeInfo } from "./TreeInfo";
+import { SkillItemInfo } from "./SkillItemInfo";
+import FloatingEdge from "./FloatingEdge";
+import { useSkillTreeStore } from "@/stores/UseSkillTreeStore";
 
-const nodeTypes = {
-  skillNode: SkillNode,
-};
-
-const edgeTypes = {
-  floating: FloatingEdge,
-};
+const nodeTypes = { skillNode: SkillNode };
+const edgeTypes = { floating: FloatingEdge };
 
 const defaultEdgeOptions = {
-  type: "floating",
   animated: true,
-  style: { stroke: "var(--g-color-line-generic)", strokeWidth: 2 },
+  style: { stroke: "var(--color-slate-700)", strokeWidth: 2 },
 };
 
-export const SkillTreePage = () => {
-  // Подключаем необходимые данные и методы из Zustand-стора
+export function SkillTreePage() {
   const {
     nodes,
     edges,
@@ -37,79 +32,63 @@ export const SkillTreePage = () => {
   } = useSkillTreeStore();
 
   return (
-    <Flex width="100%" height="100%">
-      {/* ЛЕВАЯ ПАНЕЛЬ УПРАВЛЕНИЯ */}
-      <Flex
-        direction="column"
-        width="30%"
-        minWidth="320px"
-        style={{
-          borderRight: "1px solid var(--g-color-line-generic)",
-          padding: "16px",
-          backgroundColor: "var(--g-color-base-background)",
-        }}
-      >
-        {/* Блок 1: Выбор древа, создание и общая кнопка сохранения в XML */}
-        <Flex direction="column" gap={4} style={{ marginBottom: "20px" }}>
+    <div className="flex w-screen h-screen bg-slate-950 text-slate-200 overflow-hidden">
+      {/* ЛЕВАЯ ПАНЕЛЬ */}
+      <aside className="w-80 flex flex-col border-r border-slate-800 bg-slate-900/50 backdrop-blur-sm">
+        {/* ВЕРХ: Управление файлами и деревом */}
+        <section className="p-4 space-y-4">
           <TreeInfo />
           <Button
-            width="max"
-            view="action"
+            className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold"
             onClick={saveCurrentTree}
             disabled={!currentTree}
           >
-            СОХРАНИТЬ ВСЁ
+            СОХРАНИТЬ В XML
           </Button>
-        </Flex>
+        </section>
 
-        {/* Блок 2: Карточка просмотра выбранного навыка */}
-        <Flex
-          direction="column"
-          grow={1}
-          style={{
-            border: "1px solid var(--g-color-line-generic)",
-            borderRadius: "8px",
-            padding: "12px",
-            overflowY: "auto",
-            marginBottom: "16px",
-          }}
-        >
+        <Separator className="bg-slate-800" />
+
+        {/* ЦЕНТР: Информация о выбранной ноде */}
+        <section className="flex-1 overflow-y-auto p-4 custom-scrollbar">
           <SkillItemInfo />
-        </Flex>
+        </section>
 
-        {/* Блок 3: Кнопки манипуляции с нодами на холсте */}
-        <Flex direction="column" gap={2}>
+        <Separator className="bg-slate-800" />
+
+        {/* НИЗ: Кнопки действий над графом */}
+        <section className="p-4 grid gap-2">
           <Button
-            width="max"
-            view="flat-success"
-            size="l"
+            variant="secondary"
+            className="w-full bg-emerald-900/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-900/40"
             onClick={addNode}
             disabled={!currentTree}
           >
-            ДОБАВИТЬ НАВЫК
+            + ДОБАВИТЬ НАВЫК
           </Button>
-          <Button
-            width="max"
-            view="flat-info"
-            size="l"
-            disabled={!selectedNode}
-          >
-            ИЗМЕНИТЬ
-          </Button>
-          <Button
-            width="max"
-            view="flat-danger"
-            size="l"
-            onClick={deleteSelectedNode}
-            disabled={!selectedNode}
-          >
-            УДАЛИТЬ
-          </Button>
-        </Flex>
-      </Flex>
 
-      {/* ПРАВАЯ ЧАСТЬ: ИНТЕРАКТИВНЫЙ ХОЛСТ ГРАФА */}
-      <div style={{ flexGrow: 1, height: "100%" }}>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              className="border-slate-700 text-slate-300 hover:text-white"
+              disabled={!selectedNode}
+            >
+              ИЗМЕНИТЬ
+            </Button>
+            <Button
+              variant="destructive"
+              className="bg-red-900/20 text-red-400 border border-red-500/30 hover:bg-red-900/40"
+              onClick={deleteSelectedNode}
+              disabled={!selectedNode}
+            >
+              УДАЛИТЬ
+            </Button>
+          </div>
+        </section>
+      </aside>
+
+      {/* ПРАВАЯ ЧАСТЬ: ХОЛСТ */}
+      <main className="flex-1 relative bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:20px_20px]">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -123,9 +102,9 @@ export const SkillTreePage = () => {
           defaultEdgeOptions={defaultEdgeOptions}
           fitView
         >
-          <Background color="#333" gap={20} />
+          <Background color="#0f172a" />
         </ReactFlow>
-      </div>
-    </Flex>
+      </main>
+    </div>
   );
-};
+}

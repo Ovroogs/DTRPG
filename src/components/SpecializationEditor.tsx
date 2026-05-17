@@ -1,31 +1,26 @@
+import { useState } from "react";
+import { HexAlphaColorPicker } from "react-colorful";
 import { useSkillTreeStore } from "@/stores/UseSkillTreeStore";
 import {
   Specialization,
-  Specializations,
   emptySpecialization,
+  Specializations,
 } from "@/types/Skill";
+
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
-  Text,
-  Flex,
-  Card,
-  TextInput,
-  Button,
   Popover,
-} from "@gravity-ui/uikit";
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 
-import { useState } from "react";
-import { HexAlphaColorPicker } from "react-colorful";
-
-type SpecializationListProps = {
-  specializations: Specializations;
-  onEdit: (skill: Specialization) => void;
-  onDelete: (id: string) => void;
-};
-
-export const SpecializationEditor: React.FC = () => {
-  // Связываем редактор со стором напрямую
+export function SpecializationEditor() {
   const specializations = useSkillTreeStore(
-    (state) => state.currentTree?.specialization ?? [],
+    (state) => state.currentTree?.specializations ?? [],
   );
   const updateSpecializations = useSkillTreeStore(
     (state) => state.updateSpecializations,
@@ -34,30 +29,15 @@ export const SpecializationEditor: React.FC = () => {
   const [formData, setFormData] = useState<Specialization>(emptySpecialization);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
-  const updateField = (field: keyof Specialization, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
   const handleSave = () => {
     if (!formData.name.trim()) return;
 
-    let updated: Specialization[];
-    if (isEdit) {
-      updated = specializations.map((s) =>
-        s.id === formData.id ? formData : s,
-      );
-    } else {
-      const newSpec = { ...formData, id: `spec_${Date.now()}` };
-      updated = [...specializations, newSpec];
-    }
+    const updated = isEdit
+      ? specializations.map((s) => (s.id === formData.id ? formData : s))
+      : [...specializations, { ...formData, id: `spec_${Date.now()}` }];
 
-    updateSpecializations(updated); // Обновляем состояние стора
+    updateSpecializations(updated);
     cancelEdit();
-  };
-
-  const startEdit = (spec: Specialization) => {
-    setFormData(spec);
-    setIsEdit(true);
   };
 
   const cancelEdit = () => {
@@ -65,161 +45,166 @@ export const SpecializationEditor: React.FC = () => {
     setIsEdit(false);
   };
 
-  const handleDelete = (id: string) => {
-    const updated = specializations.filter((s) => s.id !== id);
-    updateSpecializations(updated);
-  };
-
   return (
-    <Flex
-      direction="column"
-      gap="4"
-      style={{ minWidth: "350px", maxHeight: "70vh", boxSizing: "border-box" }}
-    >
-      <Card view="filled" style={{ padding: "16px", flexShrink: 0 }}>
-        <Flex direction="column" gap="3">
-          <Text
-            variant="caption-1"
-            color="secondary"
-            style={{ textAlign: "center", textTransform: "uppercase" }}
-          >
-            {isEdit ? "Редактирование" : "Новая специализация"}
-          </Text>
+    <div className="flex flex-col gap-3 max-h-[80vh]">
+      {/* ФОРМА ВВОДА */}
+      <Card className="p-3 bg-slate-900 border-slate-800 shadow-xl min-h-60">
+        <div className="space-y-3">
+          <header className="text-center">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+              {isEdit ? "Редактирование" : "Новая специализация"}
+            </span>
+          </header>
 
-          <TextInput
-            label="Название"
-            value={formData.name}
-            onUpdate={(v) => updateField("name", v)}
-            placeholder="Напр: Разрушение"
-          />
+          <div className="space-y-1">
+            <Label className="text-xs text-slate-400">Название</Label>
+            <Input
+              className="bg-slate-950 text-slate-200 border-slate-800 h-9"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              placeholder="Напр: Разрушение"
+            />
+          </div>
 
-          <TextInput
-            label="Цвет"
-            value={formData.color}
-            onUpdate={(v) => updateField("color", v)}
-            startContent={
-              <Popover
-                placement="bottom-start"
-                content={
-                  <div style={{ padding: "12px" }}>
-                    <HexAlphaColorPicker
-                      color={formData.color || "#ffffff"}
-                      onChange={(v) => updateField("color", v)}
-                    />
-                  </div>
-                }
-              >
-                <div
-                  style={{
-                    width: "24px",
-                    height: "24px",
-                    marginLeft: "8px",
-                    borderRadius: "4px",
-                    backgroundColor: formData.color || "#ffffff",
-                    cursor: "pointer",
-                    border: "2px solid var(--g-color-line-generic)",
-                  }}
-                />
+          <div className="space-y-1">
+            <Label className="text-xs text-slate-400">Цвет ветки</Label>
+            <div className="flex gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    className="w-10 h-9 rounded border border-slate-800 shrink-0 transition-transform hover:scale-105"
+                    style={{ backgroundColor: formData.color || "#ffffff" }}
+                  />
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-3 bg-slate-900 border-slate-800">
+                  <HexAlphaColorPicker
+                    color={formData.color || "#ffffff"}
+                    onChange={(color) => setFormData({ ...formData, color })}
+                  />
+                </PopoverContent>
               </Popover>
-            }
-          />
+              <Input
+                className="bg-slate-950 text-slate-200 border-slate-800 h-9 font-mono text-xs"
+                value={formData.color}
+                onChange={(e) =>
+                  setFormData({ ...formData, color: e.target.value })
+                }
+              />
+            </div>
+          </div>
 
-          <Flex gap={2}>
+          <div className="flex gap-2 pt-1">
             <Button
-              view="action"
-              size="l"
+              className="flex-1 bg-amber-600 hover:bg-amber-500 font-bold"
               onClick={handleSave}
-              style={{ flexGrow: 1 }}
               disabled={!formData.name.trim()}
             >
-              {isEdit ? "Сохранить" : "Добавить"}
+              {isEdit ? "СОХРАНИТЬ" : "ДОБАВИТЬ"}
             </Button>
             {isEdit && (
-              <Button size="l" onClick={cancelEdit}>
-                Отмена
+              <Button
+                variant="outline"
+                onClick={cancelEdit}
+                className="border-slate-700"
+              >
+                ОТМЕНА
               </Button>
             )}
-          </Flex>
-        </Flex>
+          </div>
+        </div>
       </Card>
 
-      <Flex direction="column" style={{ overflow: "hidden", flexGrow: 1 }}>
-        <Text
-          variant="caption-1"
-          color="secondary"
-          style={{ marginBottom: "8px" }}
-        >
-          ВСЕ СПЕЦИАЛИЗАЦИИ ({specializations.length})
-        </Text>
+      <Separator className="bg-slate-800" />
+
+      {/* СПИСОК */}
+      <div className="flex-1 flex flex-col min-h-0">
+        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 px-1">
+          Список ({specializations.length})
+        </span>
         <SpecializationList
           specializations={specializations}
-          onEdit={startEdit}
-          onDelete={handleDelete}
+          onEdit={(s) => {
+            setFormData(s);
+            setIsEdit(true);
+          }}
+          onDelete={(id) =>
+            updateSpecializations(specializations.filter((s) => s.id !== id))
+          }
         />
-      </Flex>
-    </Flex>
+      </div>
+    </div>
   );
-};
+}
 
-const SpecializationList = ({
-  specializations,
-  onEdit,
-  onDelete,
-}: SpecializationListProps) => {
-  if (!specializations || specializations.length === 0) {
-    return <Text color="secondary">Список пуст</Text>;
-  }
+interface ListProps {
+  specializations: Specializations;
+  onEdit: (s: Specialization) => void;
+  onDelete: (id: string) => void;
+}
 
-  const [search, setSearch] = useState<string>("");
+function SpecializationList({ specializations, onEdit, onDelete }: ListProps) {
+  const [search, setSearch] = useState("");
 
-  const filteredSkills = specializations.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase()),
+  const filtered = specializations.filter((s) =>
+    s.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
-    <Flex
-      gap={2}
-      direction="column"
-      style={{ flexGrow: 1, overflow: "hidden" }}
-    >
-      <TextInput onUpdate={setSearch} />
-      <Flex
-        direction="column"
-        gap="2"
-        style={{ overflowY: "auto", flexGrow: 1, paddingRight: "8px" }}
-      >
-        {filteredSkills.map((element) => (
-          <Card key={element.id} style={{ padding: "12px", flexShrink: 0 }}>
-            <Flex justifyContent={"space-between"} gap={1}>
-              <Flex gap={1}>
-                <div
-                  style={{
-                    width: "20px",
-                    height: "20px",
-                    margin: "0 8px",
-                    borderRadius: "4px",
-                    backgroundColor: element.color || "#ffffff",
-                    cursor: "pointer",
-                    border: "1px solid var(--g-color-line-generic)",
-                  }}
-                />
-                <Text variant="subheader-1">{element.name}</Text>
-              </Flex>
-              <Flex style={{ alignSelf: "flex-end" }} gap={2}>
-                <Button view="flat-action" onClick={() => onEdit(element)}>
-                  Изменить
-                </Button>
-                <Button
-                  view="flat-danger"
-                  onClick={() => onDelete(element.id ?? "")}
-                >
-                  Удалить
-                </Button>
-              </Flex>
-            </Flex>
-          </Card>
-        ))}
-      </Flex>
-    </Flex>
+    <div className="flex flex-col gap-2 flex-1 min-h-0">
+      <Input
+        placeholder="Поиск..."
+        className="bg-slate-950 border-slate-800 h-8 text-xs mb-1"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+        {filtered.length === 0 ? (
+          <div className="text-center py-8 text-slate-600 text-xs italic">
+            Пусто
+          </div>
+        ) : (
+          filtered.map((spec) => (
+            <Card
+              key={spec.id}
+              className="p-2 bg-slate-900/40 border-slate-800 hover:bg-slate-800/40 transition-colors"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 truncate">
+                  <div
+                    className="w-4 h-4 rounded-full border border-white/10 shrink-0"
+                    style={{ backgroundColor: spec.color || "#ffffff" }}
+                  />
+                  <span className="text-sm font-medium text-slate-200 truncate">
+                    {spec.name}
+                  </span>
+                </div>
+
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-[10px] text-amber-500 hover:text-amber-400 hover:bg-amber-500/10"
+                    onClick={() => onEdit(spec)}
+                  >
+                    ИЗМ.
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-[10px] text-red-500 hover:text-red-400 hover:bg-red-500/10"
+                    onClick={() => onDelete(spec.id || "")}
+                  >
+                    УДЛ.
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
   );
-};
+}

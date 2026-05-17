@@ -1,5 +1,5 @@
 import { SkillNode } from "@/components/SkillNode";
-import { emptySkill, SkillTree, Specialization } from "@/types/Skill";
+import { emptySkill, Skill, SkillTree, Specialization } from "@/types/Skill";
 import { skillTreeService } from "@/xml/SkillTreeXml";
 import {
   Edge,
@@ -36,6 +36,8 @@ interface SkillTreeState {
   saveCurrentTree: () => Promise<void>;
   createNewTree: (name: string) => Promise<void>;
   updateSpecializations: (specs: Specialization[]) => void;
+  // 1. Добавьте в интерфейс SkillTreeState:
+  updateSelectedNodeSkill: (skill: Skill) => void;
 }
 
 export const useSkillTreeStore = create<SkillTreeState>((set, get) => ({
@@ -106,12 +108,13 @@ export const useSkillTreeStore = create<SkillTreeState>((set, get) => ({
     set({ isLoading: true, selectedNode: null });
     try {
       const data = await skillTreeService.loadById(id);
+      console.log(data);
       if (data) {
         set({
           currentTree: {
             id: data.id,
             name: data.name,
-            specialization: data.specialization,
+            specializations: data.specializations,
           },
           nodes: data.nodes,
           edges: data.edges,
@@ -141,6 +144,30 @@ export const useSkillTreeStore = create<SkillTreeState>((set, get) => ({
     }
   },
 
+  // 2. Добавьте реализацию внутрь create:
+  updateSelectedNodeSkill: (skill) =>
+    set((state) => {
+      const { selectedNode, nodes } = state;
+      if (!selectedNode) return {};
+
+      const updatedNode = {
+        ...selectedNode,
+        data: {
+          ...selectedNode.data,
+          info: {
+            ...selectedNode.data.info,
+            // Подставляем полностью объект навыка (id, name, description, tags)
+            skill: skill,
+          },
+        },
+      };
+
+      return {
+        nodes: nodes.map((n) => (n.id === selectedNode.id ? updatedNode : n)),
+        selectedNode: updatedNode,
+      };
+    }),
+
   // Создание нового файла древа
   createNewTree: async (name) => {
     set({ isLoading: true, selectedNode: null });
@@ -150,7 +177,7 @@ export const useSkillTreeStore = create<SkillTreeState>((set, get) => ({
         currentTree: {
           id: newData.id,
           name: newData.name,
-          specialization: newData.specialization,
+          specializations: newData.specializations,
         },
         nodes: newData.nodes,
         edges: newData.edges,
@@ -166,7 +193,7 @@ export const useSkillTreeStore = create<SkillTreeState>((set, get) => ({
   updateSpecializations: (specs) =>
     set((state) => ({
       currentTree: state.currentTree
-        ? { ...state.currentTree, specialization: specs }
+        ? { ...state.currentTree, specializations: specs } // Новое имя поля в соответствии с типом
         : null,
     })),
 

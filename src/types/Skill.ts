@@ -8,7 +8,7 @@ export type Skill = {
 export type SkillTree = {
   id?: string;
   name: string;
-  specialization: Specializations;
+  specializations: Specializations;
 }
 
 export type Specialization = {
