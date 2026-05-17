@@ -66,7 +66,7 @@ const SkillsEditor = () => {
 
           <div className="space-y-3">
             <Input
-              className="bg-slate-950 border-slate-800"
+              className="bg-slate-950 border-slate-800 text-slate-400"
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
@@ -74,7 +74,7 @@ const SkillsEditor = () => {
               placeholder="Название..."
             />
             <Textarea
-              className="bg-slate-950 border-slate-800 resize-none"
+              className="bg-slate-950 border-slate-800 resize-none text-slate-400"
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
@@ -83,7 +83,7 @@ const SkillsEditor = () => {
               rows={4}
             />
             <Input
-              className="bg-slate-950 border-slate-800"
+              className="bg-slate-950 border-slate-800 text-slate-400"
               value={formData.tags as string}
               onChange={(e) =>
                 setFormData({ ...formData, tags: e.target.value })
