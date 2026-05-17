@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { emptySkill, Skill, Skills } from "../types/Skill";
+import { emptySkill, Skill, Skills } from "../../types/Skill";
 import { skillsService } from "@/xml/SkillXml";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

@@ -1,5 +1,5 @@
 import { useInternalNode, getBezierPath, EdgeProps } from "@xyflow/react";
-import { getEdgeParams } from "../utils";
+import { getEdgeParams } from "../../utils";
 
 function FloatingEdge({ id, source, target, markerEnd, style }: EdgeProps) {
   const sourceNode = useInternalNode(source);

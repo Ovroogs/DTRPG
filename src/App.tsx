@@ -3,8 +3,8 @@ import "@/styles/globals.css";
 
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
-import { SkillTreePage } from "@/components/SkillTreePage";
-import { SkillPage } from "@/components/SkillPage";
+import { SkillTreePage } from "@/components/tree/SkillTreePage";
+import { SkillPage } from "@/components/skills/SkillPage";
 
 const Placeholder = ({ title }: { title: string }) => (
   <div className="flex-1 h-screen flex items-center justify-center bg-slate-950 text-slate-500">

@@ -1,4 +1,4 @@
-import { SkillNode } from "@/components/SkillNode";
+import { SkillNode } from "@/components/tree/SkillNode";
 import { emptySkill, Skill, SkillTree, Specialization } from "@/types/Skill";
 import { skillTreeService } from "@/xml/SkillTreeXml";
 import {

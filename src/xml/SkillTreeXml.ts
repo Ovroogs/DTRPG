@@ -8,7 +8,7 @@ import {
 } from "@tauri-apps/plugin-fs";
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import { SkillTree, Specialization } from "../types/Skill"; // Путь к типам
-import { SkillNode } from "../components/SkillNode"; // Путь к ноде
+import { SkillNode } from "../components/tree/SkillNode"; // Путь к ноде
 import { Edge } from "@xyflow/react";
 
 const APP_DIR = "DTRPG";
