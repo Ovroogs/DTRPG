@@ -46,9 +46,23 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* РЕГИСТРАЦИЯ ЦВЕТОВ МАГИЧЕСКИХ ШКОЛ ИЗ КНИГИ ПРАВИЛ */
+  --color-magic-fire: #b43c16;        /* Огонь (терракотовый) */
+  --color-magic-water: #1d4ed8;       /* Вода (сапфировый) */
+  --color-magic-earth: #78350f;       /* Земля (коричневый) */
+  --color-magic-air: #52525b;         /* Воздух (пепельный) */
+  --color-magic-lightning: #dfa903;   /* Молния (золотой) */
+  --color-magic-blood: #7f1d1d;       /* Кровь (багровый) */
+  --color-magic-rot: #365314;         /* Порча (болотный) */
+  --color-magic-chaos: #581c87;       /* Хаос (аметистовый) */
+  --color-magic-soul: #042f2e;        /* Душа (бирюзовый) */
+  --color-magic-light: #fef08a;       /* Свет */
+  --color-magic-holy: #eab308;        /* Богословие */
 }
 
 :root {
+  /* Светлую тему оставляем системной или просто дефолтной, так как приложение темное */
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -67,12 +81,7 @@
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+  --radius: 0.375rem; 
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -83,38 +92,51 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* ГЛАВНАЯ СТИЛИЗАЦИЯ ИГРОВОГО РЕДАКТОРА */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Задний фон — Глубокий угольный цвет (castle-dark) */
+  --background: oklch(0.11 0.01 250); 
+  --foreground: oklch(0.92 0.015 60); /* Текст цвета теплого пергамента */
+  
+  /* Панели и сайдбары — На тон светлее фона (castle-panel) */
+  --card: oklch(0.16 0.015 250);
+  --card-foreground: oklch(0.92 0.015 60);
+  
+  --popover: oklch(0.16 0.015 250);
+  --popover-foreground: oklch(0.92 0.015 60);
+  
+  /* Главный акцентный цвет — Янтарное RPG золото (accent-amber) */
+  --primary: oklch(0.72 0.14 65); 
+  --primary-foreground: oklch(0.11 0.01 250);
+  
+  /* Элементы при наведении мыши и второстепенные кнопки */
+  --secondary: oklch(0.22 0.02 250);
+  --secondary-foreground: oklch(0.92 0.015 60);
+  
+  --accent: oklch(0.22 0.02 250);
+  --accent-foreground: oklch(0.72 0.14 65); /* Акцент подсвечивается золотом */
+  
+  /* Подписи и заблокированные элементы */
+  --muted: oklch(0.20 0.015 250);
+  --muted-foreground: oklch(0.55 0.02 250);
+  
+  /* Границы (border-iron) и Инпуты */
+  --border: oklch(1 0 0 / 8%);     /* Тонкие полупрозрачные кованые рамки */
+  --input: oklch(0.13 0.01 250);   /* Утопленные вглубь поля ввода */
+  --ring: oklch(0.72 0.14 65 / 50%);
+  
+  /* Кровь и критический урон */
+  --destructive: oklch(0.45 0.18 25);
+  
+  /* Сайдбары в темной теме */
+  --sidebar: oklch(0.15 0.015 250);
+  --sidebar-foreground: oklch(0.92 0.015 60);
+  --sidebar-primary: oklch(0.72 0.14 65);
+  --sidebar-primary-foreground: oklch(0.11 0.01 250);
+  --sidebar-accent: oklch(0.22 0.02 250);
+  --sidebar-accent-foreground: oklch(0.72 0.14 65);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: oklch(0.72 0.14 65 / 50%);
 }
 
 @layer base {
@@ -122,9 +144,25 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
   }
   html {
     @apply font-sans;
+  }
+  
+  /* СТИЛИЗАЦИЯ ДЛЯ ТОНКОГО ТЕМНОГО СКРОЛЛБАРА */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: oklch(1 0 0 / 15%);
+    border-radius: 9999px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
   }
 }
