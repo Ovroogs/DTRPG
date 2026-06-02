@@ -1,10 +1,10 @@
-import "@xyflow/react/dist/style.css";
-import "@/styles/globals.css";
-
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { SkillTreePage } from "@/components/tree/SkillTreePage";
 import { SkillPage } from "@/components/skills/SkillPage";
+import { RacePage } from "./components/races/RacePage";
+import { useNavigationStore } from "./stores/useNavigationStore";
+import { useEffect } from "react";
 
 const Placeholder = ({ title }: { title: string }) => (
   <div className="flex-1 h-screen flex items-center justify-center bg-slate-950 text-slate-500">
@@ -13,19 +13,26 @@ const Placeholder = ({ title }: { title: string }) => (
 );
 
 function App() {
+  const initPlatform = useNavigationStore((state) => state.initPlatform);
+  const platform = useNavigationStore((state) => state.platform);
+  const isAndroid = platform === "android";
+
+  useEffect(() => {
+    initPlatform();
+  }, [initPlatform]);
+
   return (
     <HashRouter>
-      <div className="flex w-screen h-screen bg-slate-950 overflow-hidden text-slate-200">
+      <div
+        className={`flex ${isAndroid ? "flex-col-reverse" : "flex-row"} w-screen h-screen bg-slate-950 text-slate-200`}
+      >
         <Sidebar />
 
-        <main className="flex-1 h-screen relative overflow-hidden">
+        <main className="flex-1 overflow-hidden h-full pb-0">
           <Routes>
             <Route path="/" element={<SkillTreePage />} />
             <Route path="/skills" element={<SkillPage />} />
-            <Route
-              path="/races"
-              element={<Placeholder title="Редактор рас" />}
-            />
+            <Route path="/races" element={<RacePage />} />
             <Route
               path="/spells"
               element={<Placeholder title="Редактор заклинаний и книг" />}

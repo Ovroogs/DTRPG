@@ -32,7 +32,7 @@ export function SkillTreePage() {
   } = useSkillTreeStore();
 
   return (
-    <div className="flex w-screen h-screen bg-slate-950 text-slate-200 overflow-hidden">
+    <div className="flex w-screen h-full bg-slate-950 text-slate-200 overflow-hidden">
       {/* ЛЕВАЯ ПАНЕЛЬ */}
       <aside className="w-80 flex flex-col border-r border-slate-800 bg-slate-900/50 backdrop-blur-sm">
         {/* ВЕРХ: Управление файлами и деревом */}
